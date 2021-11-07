@@ -1,0 +1,25 @@
+<%- include("partials/header"); -%>
+
+<h1>Welcome to Live Life</h1>
+
+<div>
+
+  <p><%= startingContent %></p>
+
+</div>
+
+<div>
+
+  <%    blogs.forEach(function(blog) { %>
+  <h1><%= blog.title %></h1>
+  <p>
+    <%= blog.content.substr(0, 99)+" ..." %>
+
+    <a href="/posts/<%=blog.title%>">Read More</a>
+  </p>
+
+  <% }) %>
+
+</div>
+
+<%- include("partials/footer"); -%>
