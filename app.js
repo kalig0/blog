@@ -1,31 +1,30 @@
 require("dotenv").config;
 
 //Requiring mailchimp's module
-//For this we need to install the npm module @mailchimp/mailchimp_marketing. To do that we write:
-//npm install @mailchimp/mailchimp_marketing
 const mailchimp = require("@mailchimp/mailchimp_marketing");
-//Requiring express and body parser and initializing the constant "app"
 
+//Requiring express and body parser and initializing the constant "app"
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const _ = require("lodash");
 const mongoose = require("mongoose");
 
-const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
-const aboutContent = "Hac habitasse platea dictumst vestibulum rhoncus est pellentesque. Dictumst vestibulum rhoncus est pellentesque elit ullamcorper. Non diam phasellus vestibulum lorem sed. Platea dictumst quisque sagittis purus sit. Egestas sed sed risus pretium quam vulputate dignissim suspendisse. Mauris in aliquam sem fringilla. Semper risus in hendrerit gravida rutrum quisque non tellus orci. Amet massa vitae tortor condimentum lacinia quis vel eros. Enim ut tellus elementum sagittis vitae. Mauris ultrices eros in cursus turpis massa tincidunt dui.";
-const contactContent = "Scelerisque eleifend donec pretium vulputate sapien. Rhoncus urna neque viverra justo nec ultrices. Arcu dui vivamus arcu felis bibendum. Consectetur adipiscing elit duis tristique. Risus viverra adipiscing at in tellus integer feugiat. Sapien nec sagittis aliquam malesuada bibendum arcu vitae. Consequat interdum varius sit amet mattis. Iaculis nunc sed augue lacus. Interdum posuere lorem ipsum dolor sit amet consectetur adipiscing elit. Pulvinar elementum integer enim neque. Ultrices gravida dictum fusce ut placerat orci nulla. Mauris in aliquam sem fringilla ut morbi tincidunt. Tortor posuere ac ut consequat semper viverra nam libero.";
+const homeStartingContent = "Everyone only lives once, so taking life to its fullest is very meaningful.  Yesterday is a beautiful memory, while tomorrow lives in our imagination so grasp and enjoy what you can today.  Whether you are working hard to advance your career, studying diligently to meet a deadline, or practicing intensely to improve, remember to take a little time everyday to take a walk, to listen to music, to thank your friends, and to express your love and gratitude to your family.  This blog is dedicated to appreciating the little things in life.";
+const aboutContent = "Hello and welcome to my personal blog!  I created it to help me write down my random thoughts.  This blog is a demonstration of my programming skills currently and will be my thought repository in the future.";
+const contactContent = "Please email me at talldanielyu@gmail.com if you have any questions, suggestions, requestions, etc.  All your words are appreciated.";
 
 const app = express();
 
 // connect to posts database
-var mongoDB = "mongodb://localhost:27017/posts";
-//
-mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
+// var mongoDB = "mongodb://localhost:27017/posts";
+// mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 
-// var mongoDBConnect = "mongodb+srv://" + process.env.MONGO_KEY + "@cluster0.t5imk.mongodb.net/posts";
-//
-// mongoose.connect(mongoDBConnect, {  useNewURLParser: true, useUnifiedTopology: true });
+var mongoDBConnect = "mongodb+srv://" + process.env.MONGO_KEY + "@cluster0.t5imk.mongodb.net/posts";
+mongoose.connect(mongoDBConnect, {
+  useNewURLParser: true,
+  useUnifiedTopology: true
+});
 
 // create Schema and model for posts collection
 const postSchema = new mongoose.Schema({
@@ -53,12 +52,9 @@ const Reader = mongoose.model(
 
 
 //get current year
-let today= new Date();
+let today = new Date();
 let currentYear = today.getFullYear();
 
-
-
-// var blogArray = [];
 
 app.set('view engine', 'ejs');
 
@@ -70,16 +66,13 @@ app.use(express.static("public"));
 
 // setup mialchimp configuration
 mailchimp.setConfig({
-  //*****************************ENTER YOUR API KEY HERE******************************
   apiKey: process.env.MC_APIKEY,
-  //*****************************ENTER YOUR API KEY PREFIX HERE i.e.THE SERVER******************************
   server: "us5"
 });
 
 
 app.get("/", function(req, res) {
-  // res.render(__dirname + "/views/home.ejs");
-  Post.find({}, function(err, foundPosts){
+  Post.find({}, function(err, foundPosts) {
     if (err) {
       console.log(err);
     } else {
@@ -99,6 +92,7 @@ app.get("/about", function(req, res) {
   });
 });
 
+
 app.get("/contact", function(req, res) {
   res.render("contact", {
     contact: contactContent,
@@ -113,15 +107,21 @@ app.get("/compose", function(req, res) {
 
 });
 
-app.get("/posts/:postName", function(req, res){
+app.get("/posts/:postName", function(req, res) {
   const requestedTitle = _.capitalize(req.params.postName);
 
-  Post.find({title: requestedTitle}, function(err, foundPosts){
+  Post.find({
+    title: requestedTitle
+  }, function(err, foundPosts) {
     if (err) {
       console.log(err);
     } else {
       console.log(foundPosts);
-      res.render("post", {selectTitle:requestedTitle, selectContent: foundPosts[0].content, currentYear: currentYear,});
+      res.render("post", {
+        selectTitle: requestedTitle,
+        selectContent: foundPosts[0].content,
+        currentYear: currentYear,
+      });
     }
   });
 });
@@ -132,20 +132,19 @@ app.post("/compose", function(req, res) {
     title: newTitle,
     content: req.body.content
   });
-  // blogArray.push(newPost);
   newPost.save();
   res.redirect("/");
 });
 
 // handling reader signup
-app.post("/signup", function(req, res){
-  //user singup information entered in the form of signup.html
+app.post("/signup", function(req, res) {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const email = req.body.email;
   console.log(firstName, lastName, email);
 
   const listId = process.env.MC_LISTID;
+console.log("List ID is", listId);
 
   // Creating an object with users data
   const subscribingUser = new Reader({
@@ -154,14 +153,14 @@ app.post("/signup", function(req, res){
     email: email
   });
 
-// save the subscribingUser to readers collection
-subscribingUser.save(function(err,doc){
-  if (err) {
-    console.log(err);
-  } else {
-    console.log("the reader document inserted successfully")
-  };
-});
+  // save the subscribingUser to readers collection
+  subscribingUser.save(function(err, doc) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log("the reader document inserted successfully")
+    };
+  });
 
 
   //upload the data to the MailChimp server
@@ -176,21 +175,24 @@ subscribingUser.save(function(err,doc){
         }
       }],
     });
-    //console.log(response);
+
     //display success message to user
-        res.render("success",{currentYear: currentYear})
-        // res.sendFile(__dirname + "/success.html");
-        console.log(`Successfully added contact as an audience member. The contact's id is ${response.new_members.id}`);
-      };
-      run().catch(e => res.render("failure",{currentYear: currentYear}));
-
+    res.render("success", {
+      currentYear: currentYear
     });
+    console.log("Successfully added contact as an audience member. The contact's id is ${response.new_members.id}");
+  };
+  run().catch(e => res.render("failure", {
+    currentYear: currentYear
+  }));
+
+});
 
 
-    let port = process.env.PORT;
-    if (port == null || port == "") {
-      port = 3000;
-    };
-    app.listen(port, function() {
-      console.log("Server has started successfully");
-    });
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+};
+app.listen(port, function() {
+  console.log("Server has started successfully");
+});
